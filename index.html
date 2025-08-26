@@ -4,7 +4,15 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>דף נחיתה — הרשמה</title>
- <style>
+
+  <!-- ביטול קאש בדפדפן כדי שתראה את העיצוב מיד -->
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <!-- טעינה מוקדמת של תמונת הרקע (אם קיימת) -->
+  <link rel="preload" as="image" href="images/plane.jpeg" />
+
+  <style>
     /* ===== ערכת צבעים חדשה, יוקרתית וזהובה ===== */
     :root{
       --bg:#0a0b0f;           /* רקע כללי עמוק */
@@ -163,7 +171,8 @@
     <h1>השארת פרטים</h1>
     <p>מלא/י את הפרטים ונחזור אליך בהקדם.</p>
 
-   <form id="leadForm" novalidate>
+    <!-- שליחה יחסית לשרת שמגיש את הדף (יעבוד על localhost ובענן) -->
+    <form action="/api/lead" method="post" accept-charset="utf-8" novalidate>
       <label for="name">שם מלא</label>
       <input id="name" name="name" type="text" required placeholder="לדוגמה: יואב כהן">
 
@@ -176,46 +185,9 @@
       <label for="age">גיל</label>
       <input id="age" name="age" type="number" min="0" max="120" required placeholder="20">
 
-      <button id="btn" type="submit">אישור</button>
-      <div id="err" class="err">אירעה שגיאה בשליחה. נסו שוב.</div>
+      <button type="submit">אישור</button>
       <p class="note">בלחיצה על “אישור” הנך מאשר/ת שמירת הפרטים לצורך יצירת קשר.</p>
     </form>
   </main>
-
-  <script>
-    const PROXY_URL = "/api/lead";
-    const form = document.getElementById("leadForm");
-    const btn  = document.getElementById("btn");
-    const err  = document.getElementById("err");
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      err.style.display = "none";
-      if (!form.reportValidity()) return;
-
-      const payload = {
-        name:  form.name.value.trim(),
-        phone: form.phone.value.trim(),
-        email: form.email.value.trim(),
-        age:   Number(form.age.value)
-      };
-
-      btn.disabled = true;
-      try {
-        const res = await fetch(PROXY_URL, {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify(payload)
-        });
-        if (!res.ok) throw new Error("Bad status " + res.status);
-        window.location.href = "success.html";
-      } catch (e) {
-        console.error(e);
-        err.style.display = "block";
-      } finally {
-        btn.disabled = false;
-      }
-    });
-  </script>
 </body>
 </html>
