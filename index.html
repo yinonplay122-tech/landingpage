@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>דף נחיתה — הרשמה</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#f7f7f8;margin:0}
+    .wrap{max-width:560px;margin:48px auto;padding:24px;background:#fff;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.08)}
+    h1{margin:0 0 10px}
+    label{display:block;margin:.9rem 0 .35rem}
+    input{width:100%;padding:.8rem;border:1px solid #ddd;border-radius:10px;font-size:16px}
+    button{margin-top:16px;width:100%;padding:12px;border:0;border-radius:12px;background:#10b981;color:#fff;font-weight:700;font-size:16px;cursor:pointer}
+    button[disabled]{opacity:.6;cursor:wait}
+    .err{display:none;margin-top:10px;color:#b91c1c;font-weight:600}
+    .note{margin-top:10px;color:#666;font-size:13px}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>השארת פרטים</h1>
+    <p>מלא/י את הפרטים ונחזור אליך בהקדם.</p>
+
+    <form id="leadForm" novalidate>
+      <label for="name">שם מלא</label>
+      <input id="name" name="name" type="text" required placeholder="לדוגמה: יואב כהן">
+
+      <label for="phone">מספר טלפון</label>
+      <input id="phone" name="phone" type="tel" required inputmode="tel" placeholder="050-1234567">
+
+      <label for="email">אימייל</label>
+      <input id="email" name="email" type="email" required placeholder="you@example.com">
+
+      <label for="age">גיל</label>
+      <input id="age" name="age" type="number" min="0" max="120" required placeholder="20">
+
+      <button id="btn" type="submit">אישור</button>
+      <div id="err" class="err">אירעה שגיאה בשליחה. נסו שוב.</div>
+      <p class="note">בלחיצה על “אישור” הנך מאשר/ת שמירת הפרטים לצורך יצירת קשר.</p>
+    </form>
+  </main>
+
+  <script>
+    const PROXY_URL = "/api/lead";
+    const form = document.getElementById("leadForm");
+    const btn  = document.getElementById("btn");
+    const err  = document.getElementById("err");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      err.style.display = "none";
+      if (!form.reportValidity()) return;
+
+      const payload = {
+        name:  form.name.value.trim(),
+        phone: form.phone.value.trim(),
+        email: form.email.value.trim(),
+        age:   Number(form.age.value)
+      };
+
+      btn.disabled = true;
+      try {
+        const res = await fetch(PROXY_URL, {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error("Bad status " + res.status);
+        window.location.href = "success.html";
+      } catch (e) {
+        console.error(e);
+        err.style.display = "block";
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
