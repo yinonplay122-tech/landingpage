@@ -28,14 +28,12 @@
     display:flex; align-items:center; justify-content:center;
     padding:20px; text-align:center;
   }
-  /* תמונת רקע (אם קיימת) */
   body::before{
     content:""; position:fixed; inset:0;
     background:url("images/plane.jpeg?v=2") center/cover no-repeat fixed;
     filter:brightness(.22) saturate(.9); opacity:.9;
     z-index:-2; pointer-events:none;
   }
-  /* הילה זהובה */
   body::after{
     content:""; position:fixed; inset:0;
     background:radial-gradient(600px 260px at 50% 50%, var(--glow), transparent 65%);
@@ -140,7 +138,6 @@
   }
   .show{display:flex !important;}
 
-  /* נייד */
   @media (max-width:520px){
     .wrap{padding:24px 16px}
     h1{font-size:22px}
@@ -176,7 +173,8 @@
     <div class="modal">
       <h2 id="modalTitle">שגיאה בשליחת הטופס</h2>
       <p id="modalMsg">אחד מהשדות לא הוזן כראוי.</p>
-      <button class="close-btn" id="modalClose">הבנתי</button>
+      <!-- שיניתי ל-type="button" כדי לוודא שהכפתור רק סוגר -->
+      <button type="button" class="close-btn" id="modalClose">הבנתי</button>
     </div>
   </div>
 
@@ -194,30 +192,25 @@
     function showError(msg, fields=[]) {
       modalMsg.textContent = msg || 'אחד מהשדות לא הוזן כראוי.';
       backdrop.classList.add('show');
-      // סימון ויזואלי בשדות הבעייתיים
       [nameEl, phoneEl, emailEl, ageEl].forEach(el => el.classList.remove('field-error'));
       fields.forEach(el => el.classList.add('field-error'));
-      // פוקוס חזרה לשדה ראשון בעייתי
       if (fields[0]) fields[0].focus();
     }
-    function hideError() {
-      backdrop.classList.remove('show');
-    }
+    function hideError() { backdrop.classList.remove('show'); }
     backdrop.addEventListener('click', (e)=>{ if(e.target===backdrop) hideError(); });
     closeBtn.addEventListener('click', hideError);
     document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') hideError(); });
 
-    // ===== ולידציה לפי הדרישות =====
+    // ===== ולידציה =====
     function isHebrew(str){ return /[\u0590-\u05FF]/.test(str); }
     function isEnglish(str){ return /[A-Za-z]/.test(str); }
 
     function validateName(name){
       if (!name) return false;
-      if (/\d/.test(name)) return false; // אין ספרות
+      if (/\d/.test(name)) return false;
       const hasHeb = isHebrew(name);
       const hasEng = isEnglish(name);
-      if (hasHeb && hasEng) return false; // לא לערבב שפות
-      // רק אותיות, רווח, גרש, מקף — לפי שפה אחת
+      if (hasHeb && hasEng) return false;
       const reHeb = /^[\u0590-\u05FF\s'\-]+$/;
       const reEng = /^[A-Za-z\s'\-]+$/;
       return hasHeb ? reHeb.test(name) : reEng.test(name);
@@ -228,10 +221,10 @@
       return /^\d{10}$/.test(digits);
     }
 
+    // >>> אימייל: מותר גם ספרות לפני ואחרי @
     function validateEmail(mail){
       if (!mail) return false;
-      // רק אותיות באנגלית, נקודות מותרות, חייב @, סיומת מאותיות
-      const re = /^[A-Za-z]+(?:\.[A-Za-z]+)*@[A-Za-z]+(?:\.[A-Za-z]+)+$/;
+      const re = /^[A-Za-z0-9]+(?:\.[A-Za-z0-9]+)*@[A-Za-z0-9]+(?:\.[A-Za-z0-9]+)+$/;
       return re.test(mail);
     }
 
@@ -243,22 +236,19 @@
       const email = emailEl.value.trim();
       const age   = ageEl.value.trim();
 
-      // ריק?
       if (!name || !phone || !email || !age) {
         showError('יש למלא את כל השדות.', [!name&&nameEl, !phone&&phoneEl, !email&&emailEl, !age&&ageEl].filter(Boolean));
         return;
       }
 
-      // בדיקות פורמט
       if (!validateName(name))   return showError('שם חייב להיות בשפה אחת (עברית או אנגלית), בלי ספרות.', [nameEl]);
       if (!validatePhone(phone)) return showError('מספר טלפון חייב להכיל 10 ספרות בדיוק.', [phoneEl]);
-      if (!validateEmail(email)) return showError('אימייל חייב להכיל @ ולהיות באותיות באנגלית בלבד.', [emailEl]);
+      if (!validateEmail(email)) return showError('אימייל חייב להכיל @ ומותר בו אותיות באנגלית וספרות בלבד.', [emailEl]);
 
-      // שליחה לשרת (URL-Encoded כדי להתאים ל-/api/lead)
       try{
         const params = new URLSearchParams();
         params.set('name', name);
-        params.set('phone', phone.replace(/\D/g,'')); // שומר רק ספרות
+        params.set('phone', phone.replace(/\D/g,''));
         params.set('email', email);
         params.set('age',   age);
 
@@ -269,12 +259,10 @@
         });
 
         if (r.ok) {
-          // השרת מחזיר redirect ל-/success.html; ננווט ידנית כדי לוודא
           window.location.href = '/success.html';
           return;
         }
 
-        // שגיאות ידועות
         if (r.status === 409) {
           showError('האימייל או מספר הטלפון כבר קיימים במערכת.', [emailEl, phoneEl]);
           return;
@@ -285,9 +273,8 @@
           return;
         }
 
-        // כללי
         showError('אירעה שגיאה בלתי צפויה. נסה/י שוב בעוד רגע.');
-      }catch(err){
+      }catch{
         showError('שגיאת רשת. בדוק/י חיבור ונסו שוב.');
       }
     });
