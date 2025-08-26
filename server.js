@@ -35,28 +35,50 @@ app.use(express.static(__dirname, {
   }
 }));
 
-// ===== כאן שמים את הראוטים של הדפים =====
 function sendNoCache(res, filename) {
   res.set('Cache-Control', 'no-store');
   res.sendFile(path.join(__dirname, filename));
 }
 
 // "/" יגיש את דף הבית
-app.get('/', (req, res) => {
-  sendNoCache(res, 'home.html');
-});
+app.get('/', (req, res) => sendNoCache(res, 'home.html'));
 
 // הרשמה ותודה
-app.get(['/register', '/register.html', '/index.html'], (req, res) => {
-  sendNoCache(res, 'index.html');
-});
-app.get(['/success', '/success.html'], (req, res) => {
-  sendNoCache(res, 'success.html');
-});
+app.get(['/register', '/register.html', '/index.html'], (req, res) =>
+  sendNoCache(res, 'index.html')
+);
+app.get(['/success', '/success.html'], (req, res) =>
+  sendNoCache(res, 'success.html')
+);
 
 // ===== בדיקות =====
 app.get('/whoami', (_req, res) => res.send('Node landing-page server OK'));
 app.get('/api/lead/ping', (_req, res) => res.json({ ok: true }));
+
+// ===== עזרי ולידציה בצד שרת =====
+const reHeb = /^[\u0590-\u05FF\s'\-]+$/;
+const reEng = /^[A-Za-z\s'\-]+$/;
+function isHebrew(s){ return /[\u0590-\u05FF]/.test(s); }
+function isEnglish(s){ return /[A-Za-z]/.test(s); }
+
+function validateName(name){
+  if (!name) return false;
+  if (/\d/.test(name)) return false;              // אין ספרות
+  const hasHeb = isHebrew(name);
+  const hasEng = isEnglish(name);
+  if (hasHeb && hasEng) return false;             // לא לערבב שפות
+  return hasHeb ? reHeb.test(name) : reEng.test(name);
+}
+
+function normalizePhone(p){ return String(p||'').replace(/\D/g,''); }
+function validatePhone(p){ return /^\d{10}$/.test(normalizePhone(p)); }
+
+function validateEmail(email){
+  if (!email) return false;
+  // רק אותיות באנגלית, נקודות מותרות, חייב @
+  const re = /^[A-Za-z]+(?:\.[A-Za-z]+)*@[A-Za-z]+(?:\.[A-Za-z]+)+$/;
+  return re.test(email);
+}
 
 // ===== API =====
 app.get('/api/lead', (_req, res) => res.status(405).send('Use POST /api/lead'));
@@ -67,9 +89,16 @@ app.post('/api/lead', async (req, res) => {
   const email = (req.body.email || '').trim();
   const age   = Number(req.body.age);
 
+  // בדיקות בסיס
   if (!name || !phone || !email || Number.isNaN(age)) {
-    return res.status(400).send('Missing fields');
+    return res.status(400).send('יש למלא את כל השדות.');
   }
+  if (!validateName(name))   return res.status(400).send('שם חייב להיות בשפה אחת (עברית או אנגלית), בלי ספרות.');
+  if (!validatePhone(phone)) return res.status(400).send('מספר טלפון חייב להכיל 10 ספרות בלבד.');
+  if (!validateEmail(email)) return res.status(400).send('אימייל חייב להכיל @ ולהיות באותיות באנגלית בלבד.');
+
+  const phoneDigits = normalizePhone(phone);
+  const emailLower  = email.toLowerCase();
 
   const baseId = process.env.AIRTABLE_BASE_ID;
   const table  = process.env.AIRTABLE_TABLE_NAME;
@@ -79,9 +108,42 @@ app.post('/api/lead', async (req, res) => {
     return res.status(500).send('Airtable env vars missing');
   }
 
+  // ===== בדיקת כפילויות ב-Airtable =====
+  try {
+    // שים לב: אנחנו מניחים שבשדה Phone Number שומרים "ספרות בלבד" (כמו שאנחנו שומרים כעת)
+    const formula = `OR({Email}="${emailLower}", {Phone Number}="${phoneDigits}")`;
+    const dupURL  = `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(table)}?pageSize=1&filterByFormula=${encodeURIComponent(formula)}`;
+
+    const dupRes = await fetch(dupURL, {
+      headers: { Authorization: `Bearer ${apiKey}` }
+    });
+
+    if (!dupRes.ok) {
+      const t = await dupRes.text();
+      console.error('Airtable duplicate-check error:', t);
+      return res.status(502).send('שגיאה מול Airtable בבדיקת כפילויות.');
+    }
+
+    const dupJson = await dupRes.json();
+    if (Array.isArray(dupJson.records) && dupJson.records.length > 0) {
+      return res.status(409).send('האימייל או מספר הטלפון כבר קיימים במערכת.');
+    }
+  } catch (e) {
+    console.error('Duplicate-check exception:', e);
+    return res.status(502).send('שגיאה בבדיקת כפילויות.');
+  }
+
+  // ===== יצירה ב-Airtable =====
   const url  = `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(table)}`;
   const body = {
-    records: [{ fields: { Name: name, 'Phone Number': phone, Email: email, Age: age } }]
+    records: [{
+      fields: {
+        Name: name,
+        'Phone Number': phoneDigits,
+        Email: emailLower,
+        Age: age
+      }
+    }]
   };
 
   try {
@@ -95,6 +157,7 @@ app.post('/api/lead', async (req, res) => {
     });
 
     if (r.ok) {
+      // נווט לצד לקוח ל-/success.html
       return res.redirect(303, '/success.html');
     }
 
@@ -111,3 +174,4 @@ app.post('/api/lead', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
