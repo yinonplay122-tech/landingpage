@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>דף נחיתה — הרשמה</title>
   <style>
-  /* ========= משתנים משותפים ========= */
+  /* ===== ערכת צבעים וגופנים — זהה לדף הבית ===== */
   :root{
     --bg:#0b0b0f; --panel:#0f1116; --text:#eef0f6; --muted:#a7abc1;
     --line:rgba(255,255,255,.14); --gold1:#ffe38a; --gold2:#f0bf3a;
@@ -13,113 +13,107 @@
   }
   *{box-sizing:border-box}
 
-  /* ========= ברירת מחדל: לייט (כמו בקטע הראשון) ========= */
+  /* ===== רקע כללי + הילה ===== */
   body{
-    font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-    background:#f7f7f8; margin:0; color:#111;
-    display:block; /* כדי לא לדרוס את הפריסה הקיימת */
-  }
-  .wrap{
-    max-width:560px; margin:48px auto; padding:24px;
-    background:#fff; border-radius:16px;
-    box-shadow:0 8px 24px rgba(0,0,0,.08);
-  }
-  h1{margin:0 0 10px}
-  label{display:block; margin:.9rem 0 .35rem}
-  input{
-    width:100%; padding:.8rem; border:1px solid #ddd;
-    border-radius:10px; font-size:16px; background:#fff; color:#111;
-  }
-  button{
-    margin-top:16px; width:100%; padding:12px; border:0; border-radius:12px;
-    background:#10b981; color:#fff; font-weight:700; font-size:16px; cursor:pointer;
-  }
-  .note{margin-top:10px; color:#666; font-size:13px}
-
-  /* ========= אופציה: עיצוב כהה–זהב (כמו בקטע השני) =========
-     הפעלה ע"י הוספת class="theme-dark" ל-<body> */
-  body.theme-dark{
+    margin:0;
+    font-family:system-ui,-apple-system,Segoe UI,Heebo,Roboto,Helvetica,Arial,sans-serif;
     color:var(--text);
     min-height:100vh;
     background:
       radial-gradient(1200px 520px at 80% -10%, rgba(240,191,58,.12), transparent 60%),
       radial-gradient(900px 520px at -10% 120%, rgba(140,120,240,.08), transparent 60%),
       var(--bg);
-    display:flex; align-items:center; justify-content:center; padding:20px;
-    text-align:center;
+    display:flex; align-items:center; justify-content:center;
+    padding:20px; text-align:center;
   }
-  body.theme-dark::before{
+  /* תמונת רקע (אם קיימת) */
+  body::before{
     content:""; position:fixed; inset:0;
-    background:url("images/plane.jpeg") center/cover no-repeat fixed;
-    filter:brightness(.22) saturate(.9); opacity:.9; z-index:-2; pointer-events:none;
+    background:url("images/plane.jpeg?v=2") center/cover no-repeat fixed;
+    filter:brightness(.22) saturate(.9); opacity:.9;
+    z-index:-2; pointer-events:none;
   }
-  body.theme-dark::after{
+  /* הילה זהובה */
+  body::after{
     content:""; position:fixed; inset:0;
     background:radial-gradient(600px 260px at 50% 50%, var(--glow), transparent 65%);
     z-index:-1; pointer-events:none;
   }
 
-  /* כרטיס כהה–זהב */
-  .card{
-    width:100%; max-width:560px; padding:34px 26px;
+  /* ===== כרטיס אחיד לשני הדפים =====
+     ב-index יש לך <main class="wrap">..., ב-success יש .box —
+     כאן אנחנו נותנים לשניהם אותו מראה יוקרתי */
+  .wrap, .box{
+    width:100%; max-width:600px;
+    padding:34px 26px;
     background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.025));
     border:1px solid var(--line); border-radius:22px;
     box-shadow:0 28px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.05);
-    position:relative; margin:auto;
+    position:relative; text-align:inherit;
   }
-  .card::before{
+  .wrap::before, .box::before{
     content:""; position:absolute; inset:-1px; border-radius:22px; padding:1px;
     background:linear-gradient(90deg, transparent, var(--gold2), transparent);
     -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none;
   }
 
-  /* טיפוגרפיה בכרטיס הכהה בלבד */
-  body.theme-dark .card h1{
-    margin:0 0 10px; font-weight:900; letter-spacing:.2px;
+  /* ===== טיפוגרפיה ===== */
+  h1{
+    margin:0 0 12px; font-weight:900; letter-spacing:.2px;
     font-size:clamp(22px,3.8vw,28px);
     background:linear-gradient(100deg,var(--gold2),var(--gold1));
     -webkit-background-clip:text; background-clip:text; color:transparent;
     text-shadow:0 0 18px rgba(240,191,58,.12);
   }
-  body.theme-dark .card p{margin:0 0 14px; color:var(--muted); font-size:15px}
+  p{margin:0 0 12px; color:var(--muted); font-size:15px}
 
-  /* שדות בתוך העיצוב הכהה–זהב */
-  body.theme-dark .card label{
-    display:block; margin:.9rem 0 .35rem; color:var(--text); font-weight:700; font-size:14px;
+  /* ===== טופס (index.html) ===== */
+  label{
+    display:block; margin:1rem 0 .45rem; color:var(--text);
+    font-weight:700; font-size:14px; letter-spacing:.1px; text-align:right;
   }
-  body.theme-dark .card input{
-    width:100%; padding:.9rem 1rem; font-size:16px; outline:0;
+  input{
+    width:100%; padding:0.95rem 1rem; font-size:16px; outline:0;
     border:1px solid #232632; border-radius:14px; color:var(--text);
     background:#0b0d12;
     transition:border-color .15s ease, box-shadow .15s ease, background .15s ease, transform .08s ease;
   }
-  body.theme-dark .card input::placeholder{color:#8f93a9}
-  body.theme-dark .card input:hover{border-color:#2f3342}
-  body.theme-dark .card input:focus{
+  input::placeholder{color:#8f93a9}
+  input:hover{border-color:#2f3342}
+  input:focus{
     border-color:var(--gold2);
     box-shadow:0 0 0 3px var(--ring), 0 6px 22px rgba(240,191,58,.20) inset;
     background:#0a0c11; transform:translateY(-1px);
   }
 
-  /* כפתור בתוך העיצוב הכהה–זהב */
-  body.theme-dark .card button,
-  body.theme-dark .card .cta{
+  /* כפתור שליחה (index) + קישור פעולה (success) */
+  button, a.cta{
     display:inline-block; width:100%;
     margin-top:16px; padding:14px 22px; border:0; border-radius:16px;
-    background:linear-gradient(92deg,var(--gold2),var(--gold1)); color:#121212;
-    font-weight:900; text-decoration:none; letter-spacing:.2px; font-size:18px; cursor:pointer;
+    background:linear-gradient(92deg,var(--gold2),var(--gold1));
+    color:#121212; font-weight:900; letter-spacing:.2px; font-size:18px; cursor:pointer;
+    text-decoration:none; text-align:center;
     box-shadow:0 22px 44px rgba(240,191,58,.35), inset 0 1px 0 rgba(255,255,255,.5);
     transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
   }
-  body.theme-dark .card button:hover,
-  body.theme-dark .card .cta:hover{
+  button:hover, a.cta:hover{
     transform:translateY(-1px) scale(1.015); filter:saturate(1.05);
     box-shadow:0 28px 56px rgba(240,191,58,.45), inset 0 1px 0 rgba(255,255,255,.6);
   }
-  body.theme-dark .card button:active,
-  body.theme-dark .card .cta:active{transform:translateY(0) scale(.99)}
+  button:active, a.cta:active{transform:translateY(0) scale(.99)}
+
+  /* הערת פרטיות/הבהרה */
+  .note{margin-top:12px; color:#b7bad1; font-size:13px}
+
+  /* ===== התאמה לניידים ===== */
+  @media (max-width:520px){
+    .wrap, .box{padding:24px 16px}
+    h1{font-size:22px}
+    button, a.cta{font-size:17px}
+  }
 </style>
+
 
 </head>
 <body>
