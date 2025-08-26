@@ -1,18 +1,17 @@
 {
   "name": "landing-page",
   "version": "1.0.0",
+  "private": true,
+  "main": "server.js",
+  "type": "commonjs",
   "scripts": {
     "start": "node server.js"
   },
+  "engines": { "node": ">=18 <=20" },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
     "node-fetch": "^2.7.0"
-  },
-  "main": "lead.js",
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": ""
+  }
 }
