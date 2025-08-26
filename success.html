@@ -4,13 +4,102 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>נרשמת בהצלחה</title>
-  <style>
-    body{display:grid;place-items:center;height:100dvh;margin:0;background:#f0fdf4;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
-    .box{background:#fff;padding:28px 30px;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.08);text-align:center}
-    h1{margin:0 0 8px;color:#065f46}
-    p{margin:0;color:#444}
-    a{display:inline-block;margin-top:16px;text-decoration:none;background:#10b981;color:#fff;padding:10px 14px;border-radius:10px}
-  </style>
+ <style>
+  :root{
+    --bg:#0b0b0f; --panel:#0f1116; --text:#eef0f6; --muted:#a7abc1;
+    --line:rgba(255,255,255,.14); --gold1:#ffe38a; --gold2:#f0bf3a;
+    --ring:rgba(240,191,58,.28); --glow:rgba(240,191,58,.18);
+  }
+  *{box-sizing:border-box}
+
+  /* רקע ותצוגה כללית */
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,Segoe UI,Heebo,Roboto,Arial,sans-serif;
+    color:var(--text);
+    min-height:100vh;
+    background:
+      radial-gradient(1200px 520px at 80% -10%, rgba(240,191,58,.12), transparent 60%),
+      radial-gradient(900px 520px at -10% 120%, rgba(140,120,240,.08), transparent 60%),
+      var(--bg);
+    display:flex; align-items:center; justify-content:center; padding:20px;
+    text-align:center;
+  }
+  body::before{
+    content:""; position:fixed; inset:0;
+    background:url("images/plane.jpeg") center/cover no-repeat fixed;
+    filter:brightness(.22) saturate(.9); opacity:.9; z-index:-2; pointer-events:none;
+  }
+  body::after{
+    content:""; position:fixed; inset:0;
+    background:radial-gradient(600px 260px at 50% 50%, var(--glow), transparent 65%);
+    z-index:-1; pointer-events:none;
+  }
+
+  /* טיפוגרפיה בסיסית */
+  h1{
+    margin:0 0 10px; font-weight:900; letter-spacing:.2px;
+    font-size:clamp(22px,3.8vw,28px);
+    background:linear-gradient(100deg,var(--gold2),var(--gold1));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 0 18px rgba(240,191,58,.12);
+  }
+  p{margin:0 0 14px; color:var(--muted); font-size:15px}
+
+  /* כרטיס כהה–זהב */
+  .card{
+    width:100%; max-width:560px; padding:34px 26px;
+    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.025));
+    border:1px solid var(--line); border-radius:22px;
+    box-shadow:0 28px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.05);
+    position:relative;
+  }
+  .card::before{
+    content:""; position:absolute; inset:-1px; border-radius:22px; padding:1px;
+    background:linear-gradient(90deg, transparent, var(--gold2), transparent);
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none;
+  }
+
+  /* כפתור פעולה */
+  .cta{
+    display:inline-block; margin-top:8px; padding:14px 22px; border-radius:16px;
+    background:linear-gradient(92deg,var(--gold2),var(--gold1)); color:#121212;
+    font-weight:900; text-decoration:none; letter-spacing:.2px; font-size:18px;
+    box-shadow:0 22px 44px rgba(240,191,58,.35), inset 0 1px 0 rgba(255,255,255,.5);
+    transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  }
+  .cta:hover{
+    transform:translateY(-1px) scale(1.015); filter:saturate(1.05);
+    box-shadow:0 28px 56px rgba(240,191,58,.45), inset 0 1px 0 rgba(255,255,255,.6);
+  }
+  .cta:active{transform:translateY(0) scale(.99)}
+
+  /* וריאנט בהיר/לבן בסגנון הירוק — .box */
+  .box{
+    background:#fff; color:#222;
+    padding:28px 30px; border-radius:18px;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+    text-align:center;
+    width:100%; max-width:560px;
+  }
+  .box h1{
+    margin:0 0 8px;
+    background:none; -webkit-background-clip:initial; color:#065f46; text-shadow:none;
+  }
+  .box p{margin:0; color:#444}
+  .box .cta{
+    margin-top:16px;
+    background:#10b981; color:#fff;
+    box-shadow:0 10px 25px rgba(16,185,129,.35);
+  }
+  .box .cta:hover{
+    transform:translateY(-1px) scale(1.01);
+    filter:none;
+    box-shadow:0 14px 30px rgba(16,185,129,.45);
+  }
+</style>
+
 </head>
 <body>
   <div class="box">
