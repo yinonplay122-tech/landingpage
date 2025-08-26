@@ -4,12 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>דף נחיתה — הרשמה</title>
+
   <style>
   /* ===== ערכת צבעים וגופנים — זהה לדף הבית ===== */
   :root{
     --bg:#0b0b0f; --panel:#0f1116; --text:#eef0f6; --muted:#a7abc1;
     --line:rgba(255,255,255,.14); --gold1:#ffe38a; --gold2:#f0bf3a;
     --ring:rgba(240,191,58,.28); --glow:rgba(240,191,58,.18);
+    --danger:#ff7676;
   }
   *{box-sizing:border-box}
 
@@ -40,10 +42,8 @@
     z-index:-1; pointer-events:none;
   }
 
-  /* ===== כרטיס אחיד לשני הדפים =====
-     ב-index יש לך <main class="wrap">..., ב-success יש .box —
-     כאן אנחנו נותנים לשניהם אותו מראה יוקרתי */
-  .wrap, .box{
+  /* ===== כרטיס ===== */
+  .wrap{
     width:100%; max-width:600px;
     padding:34px 26px;
     background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.025));
@@ -51,7 +51,7 @@
     box-shadow:0 28px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.05);
     position:relative; text-align:inherit;
   }
-  .wrap::before, .box::before{
+  .wrap::before{
     content:""; position:absolute; inset:-1px; border-radius:22px; padding:1px;
     background:linear-gradient(90deg, transparent, var(--gold2), transparent);
     -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -68,7 +68,7 @@
   }
   p{margin:0 0 12px; color:var(--muted); font-size:15px}
 
-  /* ===== טופס (index.html) ===== */
+  /* ===== טופס ===== */
   label{
     display:block; margin:1rem 0 .45rem; color:var(--text);
     font-weight:700; font-size:14px; letter-spacing:.1px; text-align:right;
@@ -86,9 +86,13 @@
     box-shadow:0 0 0 3px var(--ring), 0 6px 22px rgba(240,191,58,.20) inset;
     background:#0a0c11; transform:translateY(-1px);
   }
+  .field-error{
+    border-color:var(--danger) !important;
+    box-shadow:0 0 0 3px rgba(255,118,118,.25) !important;
+  }
 
-  /* כפתור שליחה (index) + קישור פעולה (success) */
-  button, a.cta{
+  /* ===== כפתור שליחה ===== */
+  button{
     display:inline-block; width:100%;
     margin-top:16px; padding:14px 22px; border:0; border-radius:16px;
     background:linear-gradient(92deg,var(--gold2),var(--gold1));
@@ -97,37 +101,64 @@
     box-shadow:0 22px 44px rgba(240,191,58,.35), inset 0 1px 0 rgba(255,255,255,.5);
     transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
   }
-  button:hover, a.cta:hover{
+  button:hover{
     transform:translateY(-1px) scale(1.015); filter:saturate(1.05);
     box-shadow:0 28px 56px rgba(240,191,58,.45), inset 0 1px 0 rgba(255,255,255,.6);
   }
-  button:active, a.cta:active{transform:translateY(0) scale(.99)}
+  button:active{transform:translateY(0) scale(.99)}
 
-  /* הערת פרטיות/הבהרה */
   .note{margin-top:12px; color:#b7bad1; font-size:13px}
 
-  /* ===== התאמה לניידים ===== */
-  @media (max-width:520px){
-    .wrap, .box{padding:24px 16px}
-    h1{font-size:22px}
-    button, a.cta{font-size:17px}
+  /* ===== מודאל שגיאה מעוצב ===== */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(0,0,0,.55);
+    display:none; align-items:center; justify-content:center; z-index:50;
   }
-</style>
+  .modal{
+    width:min(520px, 92vw);
+    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.025));
+    border:1px solid var(--line); border-radius:20px; padding:20px 18px;
+    box-shadow:0 28px 60px rgba(0,0,0,.6);
+    position:relative; text-align:center;
+  }
+  .modal::before{
+    content:""; position:absolute; inset:-1px; border-radius:20px; padding:1px;
+    background:linear-gradient(90deg, transparent, var(--gold2), transparent);
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude;
+  }
+  .modal h2{
+    margin:0 0 8px; font-weight:900; font-size:20px;
+    background:linear-gradient(100deg,var(--gold2),var(--gold1));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .modal p{margin:0 0 14px; color:var(--muted)}
+  .modal .close-btn{
+    display:inline-block; min-width:140px; padding:10px 14px; border:0; border-radius:12px;
+    background:linear-gradient(92deg,var(--gold2),var(--gold1)); color:#121212; font-weight:800;
+    cursor:pointer; box-shadow:0 14px 30px rgba(240,191,58,.35);
+  }
+  .show{display:flex !important;}
 
-
+  /* נייד */
+  @media (max-width:520px){
+    .wrap{padding:24px 16px}
+    h1{font-size:22px}
+    button{font-size:17px}
+  }
+  </style>
 </head>
 <body>
   <main class="wrap">
     <h1>השארת פרטים</h1>
     <p>מלא/י את הפרטים ונחזור אליך בהקדם.</p>
 
-    <!-- שליחה יחסית לשרת שמגיש את הדף (יעבוד על localhost ובענן) -->
-    <form action="/api/lead" method="post" accept-charset="utf-8" novalidate>
+    <form id="lead-form" action="/api/lead" method="post" accept-charset="utf-8" novalidate>
       <label for="name">שם מלא</label>
       <input id="name" name="name" type="text" required placeholder="לדוגמה: יואב כהן">
 
       <label for="phone">מספר טלפון</label>
-      <input id="phone" name="phone" type="tel" required inputmode="tel" placeholder="050-1234567">
+      <input id="phone" name="phone" type="tel" required inputmode="tel" placeholder="0501234567">
 
       <label for="email">אימייל</label>
       <input id="email" name="email" type="email" required placeholder="you@example.com">
@@ -139,5 +170,127 @@
       <p class="note">בלחיצה על “אישור” הנך מאשר/ת שמירת הפרטים לצורך יצירת קשר.</p>
     </form>
   </main>
+
+  <!-- מודאל שגיאה -->
+  <div id="errorBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <h2 id="modalTitle">שגיאה בשליחת הטופס</h2>
+      <p id="modalMsg">אחד מהשדות לא הוזן כראוי.</p>
+      <button class="close-btn" id="modalClose">הבנתי</button>
+    </div>
+  </div>
+
+  <script>
+    const form   = document.getElementById('lead-form');
+    const nameEl = document.getElementById('name');
+    const phoneEl= document.getElementById('phone');
+    const emailEl= document.getElementById('email');
+    const ageEl  = document.getElementById('age');
+
+    const backdrop = document.getElementById('errorBackdrop');
+    const modalMsg = document.getElementById('modalMsg');
+    const closeBtn = document.getElementById('modalClose');
+
+    function showError(msg, fields=[]) {
+      modalMsg.textContent = msg || 'אחד מהשדות לא הוזן כראוי.';
+      backdrop.classList.add('show');
+      // סימון ויזואלי בשדות הבעייתיים
+      [nameEl, phoneEl, emailEl, ageEl].forEach(el => el.classList.remove('field-error'));
+      fields.forEach(el => el.classList.add('field-error'));
+      // פוקוס חזרה לשדה ראשון בעייתי
+      if (fields[0]) fields[0].focus();
+    }
+    function hideError() {
+      backdrop.classList.remove('show');
+    }
+    backdrop.addEventListener('click', (e)=>{ if(e.target===backdrop) hideError(); });
+    closeBtn.addEventListener('click', hideError);
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') hideError(); });
+
+    // ===== ולידציה לפי הדרישות =====
+    function isHebrew(str){ return /[\u0590-\u05FF]/.test(str); }
+    function isEnglish(str){ return /[A-Za-z]/.test(str); }
+
+    function validateName(name){
+      if (!name) return false;
+      if (/\d/.test(name)) return false; // אין ספרות
+      const hasHeb = isHebrew(name);
+      const hasEng = isEnglish(name);
+      if (hasHeb && hasEng) return false; // לא לערבב שפות
+      // רק אותיות, רווח, גרש, מקף — לפי שפה אחת
+      const reHeb = /^[\u0590-\u05FF\s'\-]+$/;
+      const reEng = /^[A-Za-z\s'\-]+$/;
+      return hasHeb ? reHeb.test(name) : reEng.test(name);
+    }
+
+    function validatePhone(raw){
+      const digits = (raw || '').replace(/\D/g,'');
+      return /^\d{10}$/.test(digits);
+    }
+
+    function validateEmail(mail){
+      if (!mail) return false;
+      // רק אותיות באנגלית, נקודות מותרות, חייב @, סיומת מאותיות
+      const re = /^[A-Za-z]+(?:\.[A-Za-z]+)*@[A-Za-z]+(?:\.[A-Za-z]+)+$/;
+      return re.test(mail);
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name  = nameEl.value.trim();
+      const phone = phoneEl.value.trim();
+      const email = emailEl.value.trim();
+      const age   = ageEl.value.trim();
+
+      // ריק?
+      if (!name || !phone || !email || !age) {
+        showError('יש למלא את כל השדות.', [!name&&nameEl, !phone&&phoneEl, !email&&emailEl, !age&&ageEl].filter(Boolean));
+        return;
+      }
+
+      // בדיקות פורמט
+      if (!validateName(name))   return showError('שם חייב להיות בשפה אחת (עברית או אנגלית), בלי ספרות.', [nameEl]);
+      if (!validatePhone(phone)) return showError('מספר טלפון חייב להכיל 10 ספרות בדיוק.', [phoneEl]);
+      if (!validateEmail(email)) return showError('אימייל חייב להכיל @ ולהיות באותיות באנגלית בלבד.', [emailEl]);
+
+      // שליחה לשרת (URL-Encoded כדי להתאים ל-/api/lead)
+      try{
+        const params = new URLSearchParams();
+        params.set('name', name);
+        params.set('phone', phone.replace(/\D/g,'')); // שומר רק ספרות
+        params.set('email', email);
+        params.set('age',   age);
+
+        const r = await fetch('/api/lead', {
+          method:'POST',
+          headers:{ 'Accept':'application/json' },
+          body: params
+        });
+
+        if (r.ok) {
+          // השרת מחזיר redirect ל-/success.html; ננווט ידנית כדי לוודא
+          window.location.href = '/success.html';
+          return;
+        }
+
+        // שגיאות ידועות
+        if (r.status === 409) {
+          showError('האימייל או מספר הטלפון כבר קיימים במערכת.', [emailEl, phoneEl]);
+          return;
+        }
+        if (r.status === 400) {
+          const text = await r.text();
+          showError(text || 'אחד מהשדות לא הוזן כראוי.');
+          return;
+        }
+
+        // כללי
+        showError('אירעה שגיאה בלתי צפויה. נסה/י שוב בעוד רגע.');
+      }catch(err){
+        showError('שגיאת רשת. בדוק/י חיבור ונסו שוב.');
+      }
+    });
+  </script>
 </body>
 </html>
